@@ -6,7 +6,7 @@
 course data, running entirely in the browser (three.js, no build step, no server – it even works straight from
 `file://`).
 
-**▶ Play:** open `index.html`, or the GitHub Pages site of this repository.
+**▶ Play online: [afaisst.github.io/SwissGolf](https://afaisst.github.io/SwissGolf/)** – or open `index.html` locally.
 
 ## Courses
 
@@ -82,4 +82,4 @@ fetch the OpenStreetMap data into `osm.js`, and register the course in `maps/cou
 - 3D engine: [three.js](https://threejs.org) (MIT)
 - Golf cart: “Golf Cart (various)” by [Ian Gibb](https://sketchfab.com/slyguy),
   [CC BY 4.0](http://creativecommons.org/licenses/by/4.0/) (see `models/golfcart/golf_cart_various/license.txt`)
-- Golfer bodies adapted from “slop-newyork” by Mr.doob (MIT)
+- Golfer bodies adapted from [“slop-newyork”](https://github.com/mrdoob/slop-newyork/) by Mr.doob (MIT)
