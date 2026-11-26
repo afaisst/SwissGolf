@@ -1,0 +1,30 @@
+# SwissGolf – only what the game needs to run (e.g. on GitHub Pages) is pushed.
+# Everything is ignored first, then the game files are let back in.
+/*
+!/.gitignore
+!/README.md
+!/index.html
+!/css/
+!/js/
+!/lib/
+!/docs/
+
+# maps: the registry and, per course, only the course definition and the generated data
+!/maps/
+/maps/*/*
+!/maps/*/course.js
+!/maps/*/terrain.js
+!/maps/*/osm.js
+!/maps/*/trees.js
+
+# golf cart: the converted model, plus the licence of the original (CC BY 4.0)
+!/models/
+/models/*/*
+!/models/golfcart/cart_model.js
+!/models/golfcart/golf_cart_various/
+/models/golfcart/golf_cart_various/*
+!/models/golfcart/golf_cart_various/license.txt
+
+# not pushed (kept locally): tools/, maps/*/topo/ (swisstopo tiles), maps/*/course.json,
+# models/golfcart/golf_cart_various/scene.*, _to_delete/
+.DS_Store

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SwissGolf – Golfclub Unterengstringen</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<!-- ================= in-game HUD ================= -->
+<div id="hud" class="hidden">
+  <div id="holeCard" class="panel">
+    <div class="hc-top">
+      <div class="hc-no" id="hcNo">1</div>
+      <div><div class="hc-par" id="hcPar">Par 4</div><div class="hc-len" id="hcLen"></div></div>
+    </div>
+    <div class="hc-row"><span>Stroke</span><b id="stroke">1</b></div>
+    <div class="hc-row"><span>To pin</span><b id="toPin">–</b></div>
+    <div class="hc-row"><span>Lie</span><b id="lie">Tee</b></div>
+    <div class="hc-row sm"><span>Pin</span><b id="pinInfo"></b></div>
+    <div class="hc-row sm"><span>Round</span><b id="roundScore">–</b></div>
+  </div>
+
+  <div id="playersBar"></div>
+  <div id="playerTip" class="panel hidden"></div>
+  <div id="topRight">
+    <div class="iconbar">
+      <button id="btnHelp" title="Controls (H)"></button>
+      <button id="btnSound" title="Sound (N)"></button>
+      <button id="btnMenu" title="Menu (Esc)"></button>
+    </div>
+    <div id="wind" class="panel">
+      <div class="lbl">Wind</div>
+      <svg id="windArrow" viewBox="-30 -30 60 60"><circle r="27" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="2"/>
+        <g id="windG"><path d="M0,-22 L9,-6 L3,-6 L3,20 L-3,20 L-3,-6 L-9,-6 Z" fill="#9fe7ff"/></g></svg>
+      <div><b id="windSpd">0</b> m/s</div>
+      <div class="lbl" id="windDir"></div>
+    </div>
+  </div>
+
+  <div id="mapWrap" class="panel" title="Click or press M to enlarge"><canvas id="map" width="220" height="330"></canvas></div>
+
+  <div id="bag" class="panel hidden">
+    <div class="bag-head">Bag <span>wheel · ↑↓ · <kbd>B</kbd> to click</span></div>
+    <div id="bagList"></div>
+    <div class="bag-foot"><span class="badge">★</span> recommended</div>
+  </div>
+
+  <div id="shotPanel" class="hidden">
+    <svg id="gauge" viewBox="0 0 200 112">
+      <defs><linearGradient id="gGrad" x1="0" x2="1"><stop offset="0" stop-color="#7be07b"/><stop offset=".75" stop-color="#ffd24a"/><stop offset="1" stop-color="#ff5a4a"/></linearGradient></defs>
+      <path d="M22 96 A78 78 0 0 1 178 96" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="15" stroke-linecap="round"/>
+      <path d="M22 96 A78 78 0 0 1 178 96" fill="none" stroke="url(#gGrad)" stroke-opacity=".25" stroke-width="15"/>
+      <path id="gFill" d="M22 96 A78 78 0 0 1 178 96" fill="none" stroke="#7be07b" stroke-width="15" stroke-linecap="round" style="stroke-dasharray:0 999"/>
+      <g stroke="rgba(255,255,255,.55)" stroke-width="1.5">
+        <line x1="22" y1="96" x2="10" y2="96"/><line x1="44.8" y1="40.8" x2="36.3" y2="32.3"/><line x1="100" y1="18" x2="100" y2="6"/><line x1="155.2" y1="40.8" x2="163.7" y2="32.3"/><line x1="178" y1="96" x2="190" y2="96"/>
+      </g>
+      <line id="gTarget" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+      <text id="gTargetLbl" class="g-small" text-anchor="middle"></text>
+      <text id="gPct" x="100" y="70" text-anchor="middle" class="g-pct"></text>
+      <text id="gClub" x="100" y="92" text-anchor="middle" class="g-club"></text>
+    </svg>
+    <div id="gInfo"></div>
+    <div id="gHint"></div>
+  </div>
+
+  <div id="prompt" class="panel"></div>
+  <div id="stamina"><div id="stamFill"></div></div>
+</div>
+<div id="msg"></div>
+<div id="aimDot"></div>
+<div id="aimFree">Click to take aim again</div>
+<div id="pinLabel"><span class="pf"></span><span id="pinDist"></span></div>
+
+<!-- ================= front page (menu.js) ================= -->
+<div id="menu">
+  <canvas id="menuBg"></canvas>
+  <div class="menu-left">
+    <div class="brand">Swiss<span>Golf</span></div>
+    <div class="tagline">Real Swiss golf courses – real terrain, real trees.</div>
+    <nav>
+      <button id="mLoad" class="hidden">Load game</button>
+      <button id="mCourses" class="active">Courses</button>
+      <button id="mControls">Controls</button>
+      <button id="mSettings">Settings</button>
+    </nav>
+    <div id="loadWrap" class="hidden"><div id="loadBarBg"><div id="loadBar"></div></div><div id="loadText"></div></div>
+    <div class="credits">Terrain &amp; trees © swisstopo (swissALTI3D, swissSURFACE3D) · Map data © OpenStreetMap contributors · Golf cart: “Golf Cart (various)” by <a href="https://sketchfab.com/slyguy" target="_blank">Ian Gibb</a>, <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a> · Golfer bodies adapted from “slop-newyork” by Mr.doob (MIT)</div>
+  </div>
+  <div class="menu-right">
+    <div id="paneCourses" class="pane wide">
+      <h3>Choose a course</h3>
+      <div id="courseGrid"></div>
+    </div>
+    <div id="paneRound" class="pane round hidden">
+      <button id="backToCourses" class="back">← All courses</button>
+      <div class="round-grid">
+        <div>
+          <div id="rcThumb"></div>
+          <div class="rc-name" id="rcName"></div>
+          <div class="rc-loc" id="rcLoc"></div>
+          <div class="cc-facts" id="rcFacts"></div>
+          <p class="hint" id="rcBlurb"></p>
+        </div>
+        <div>
+          <h3>New round</h3>
+          <label>Players <span id="plCount"></span></label>
+          <div id="playerList"></div>
+          <button id="plAdd" class="pl-add">+ Add player</button>
+          <label>Start at</label><select id="startHole"></select>
+          <div class="row2"><div><label>Weather</label><select id="weatherSel"></select></div><div><label>Wind</label><select id="windSel"></select></div></div>
+          <button id="teeOff" class="big">Tee off</button>
+        </div>
+      </div>
+    </div>
+    <div id="paneLoad" class="pane hidden"><h3>Load game</h3><div id="saveSlot"></div></div>
+    <div id="paneControls" class="pane hidden"><h3>Controls</h3><div id="controlsBody"></div></div>
+    <div id="paneSettings" class="pane hidden">
+      <h3>Settings</h3>
+      <div class="set"><span>Sound</span><button id="soundToggle" class="toggle">On</button></div>
+      <div class="set"><span>Weather</span><select id="weatherSel2"></select></div>
+      <div class="set"><span>Wind</span><select id="windSel2"></select></div>
+      <div class="set"><span>Shadows</span><select id="shadowSel"><option value="1">On</option><option value="0">Off (faster)</option></select></div>
+      <div class="set"><span>Detailed trees up to</span><span class="range"><input type="range" id="treeDist" min="150" max="1000" step="50"><b id="treeDistVal"></b></span></div>
+      <div class="set"><span>Tall grass &amp; flowers</span><select id="grassSel"><option value="0">Off</option><option value="0.5">Some</option><option value="1">Full</option></select></div>
+      <p class="hint" id="settingsNote"></p>
+    </div>
+  </div>
+</div>
+
+<!-- ================= overlays ================= -->
+<div id="helpOverlay" class="overlay hidden"><div class="ov-card wide"><h2>Controls</h2><div id="helpBody"></div><div class="vbtns"><button id="helpClose" class="primary">Got it <kbd>H</kbd></button></div></div></div>
+<div id="pause" class="overlay hidden"><div class="ov-card"><h2>Paused</h2>
+  <div class="vbtns"><button id="pResume" class="primary">Resume <kbd>Esc</kbd></button><button id="pSave">Save game</button><button id="pRestart">Restart hole <kbd>R</kbd></button><button id="pScore">Scorecard</button><button id="pSettings">Settings</button><button id="pHelp">Controls <kbd>H</kbd></button><button id="pMenu">Main menu</button></div></div></div>
+<div id="setOverlay" class="overlay hidden"><div class="ov-card"><h2>Settings</h2><div id="setHolder"></div><div class="vbtns"><button id="setBack" class="primary">Back <kbd>Esc</kbd></button></div></div></div>
+<div id="card" class="overlay hidden"><div class="ov-card"><div id="cardTitle"></div><div id="cardBody"></div><div id="cardBtns" class="vbtns"></div></div></div>
+
+<!-- Plain (non-module) scripts so the game also runs from file:// without a web server or internet.
+     The menu loads the chosen course's data and the 3D engine (js/*.js, lib/three.min.js) on demand. -->
+<script src="js/utils.js"></script>
+<script src="maps/courses.js"></script>
+<script src="js/menu.js"></script>
+</body>
+</html>
